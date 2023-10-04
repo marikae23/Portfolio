@@ -1,98 +1,89 @@
-<!DOCTYPE html>
-<html lang="PT-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="01.css">
-    <title>Maria Moura</title>
-</head>
-<body>
-    <header>
-        <h1>Maria Moura</h1>
-    </header>
-    <nav>
-        <a href="#Inicio">Inicio</a>
-        <a href="#Portfolio">Portfolio</a>
-        <a href="#Servico">Serviços</a>
-        <a href="#Sobre">Sobre Nós</a>
-        <a href="#Contato">Contato</a>
-    </nav>
-    <div class="container">
-        <section id="#Inicio">
-            <h2>Elevate Your Space, Naturally Refined</h2>
-            <p>Transformamos cada espaço em uma odisseia de conforto e elegância, onde a beleza orgânica encontra a sofisticação natural</p>
-        </section>
-        <section id="#Portfolio">
-            <h2>Portfolio</h2>
-            <div class="#Portfolio">
-                <p>Com carinho, compartilho meu portfólio dedicado exclusivamente ao design de interiores em residências. Aqui, você encontrará projetos que transformam lares urbanos, casas de campo e apartamentos em espaços calorosos, funcionais e cheios de personalidade. Estou ansioso para a oportunidade de colaborar em projetos residenciais que tornem seus sonhos de lar aconchegantes em realidade.
-            </div>
-        </section>
-        <section id="#Servico">
-            <h2>Serviços</h2>
-            <p>Orçamento e etc</p>
-        </section>
-        <section id="#Sobre">
-            <h2>Sobre Nós</h2>
-            <p>Textao de n sei oq n sei oq la</p>
-        </section>
-        <section id="#Contato">
-            <p>Contato e etc</p>
+import tkinter as tk
+from tkinter import messagebox
 
-        </section>
+class ExpenseTrackerGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Expense Tracker")
 
-    </div>
-    <footer>
-        <p>2023 Your Name</p> 
-    </footer>
-</body>
-</html>
+        self.expenses = []
+        self.categories = set()
 
+        self.frame = tk.Frame(root)
+        self.frame.pack(pady=10)
 
+        self.label_category = tk.Label(self.frame, text="Category:")
+        self.label_category.grid(row=0, column=0, padx=10)
+        self.entry_category = tk.Entry(self.frame)
+        self.entry_category.grid(row=0, column=1)
 
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f2f2f2;
-}
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    text-align: center;
-}
-h1 {
-    font-size: 36px;
-}
-nav {
-    text-align: center;
-    background-color: #444;
-    padding: 10px;
-}
-nav a {
-    color: #fff;
-    text-decoration: none;
-    margin: 0 15px;
-}
-nav a:hover {
-    text-decoration: underline;
-}
-.container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-}
-.portfolio-item {
-    margin-bottom: 30px;
-}
-.portfolio-item img {
-    max-width: 100%;
-}
-footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 10px;
-}
+        self.label_amount = tk.Label(self.frame, text="Amount ($):")
+        self.label_amount.grid(row=1, column=0, padx=10)
+        self.entry_amount = tk.Entry(self.frame)
+        self.entry_amount.grid(row=1, column=1)
+
+        self.add_button = tk.Button(self.frame, text="Add Expense", command=self.add_expense)
+        self.add_button.grid(row=2, columnspan=2, pady=10)
+
+        self.label_total = tk.Label(root, text="Total Expenses: $0.00")
+        self.label_total.pack()
+
+        self.alert_threshold_label = tk.Label(root, text="Set Alert Threshold ($):")
+        self.alert_threshold_label.pack()
+        self.alert_threshold_entry = tk.Entry(root)
+        self.alert_threshold_entry.pack()
+        self.alert_button = tk.Button(root, text="Check Spending Alert", command=self.check_spending_alert)
+        self.alert_button.pack()
+        self.alert_message = tk.Label(root, text="")
+        self.alert_message.pack()
+
+    def add_expense(self):
+        category = self.entry_category.get()
+        amount = self.entry_amount.get()
+        
+        if not category or not amount:
+            messagebox.showerror("Error", "Please enter both category and amount.")
+            return
+        
+        try:
+            amount = float(amount)
+        except ValueError:
+            messagebox.showerror("Error", "Amount must be a valid number.")
+            return
+
+        self.expenses.append({"category": category, "amount": amount})
+        self.categories.add(category)
+        self.entry_category.delete(0, tk.END)
+        self.entry_amount.delete(0, tk.END)
+        self.update_total()
+
+    def update_total(self):
+        total = sum(item["amount"] for item in self.expenses)
+        self.label_total.config(text=f"Total Expenses: ${total:.2f}")
+
+    def check_spending_alert(self):
+        threshold = self.alert_threshold_entry.get()
+        
+        if not threshold:
+            messagebox.showerror("Error", "Please enter a threshold amount.")
+            return
+        
+        try:
+            threshold = float(threshold)
+        except ValueError:
+            messagebox.showerror("Error", "Threshold must be a valid number.")
+            return
+        
+        total = sum(item["amount"] for item in self.expenses)
+        
+        if total > threshold:
+            alert_message = f"Warning: You've spent ${total:.2f}, exceeding the threshold of ${threshold:.2f}!"
+        else:
+            alert_message = f"Total spending is within the budget."
+
+        self.alert_message.config(text=alert_message)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExpenseTrackerGUI(root)
+    root.mainloop()
